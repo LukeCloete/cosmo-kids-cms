@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getStorage, ref, getDownloadURL, listAll } from "firebase/storage";
+import { ref, getDownloadURL, listAll } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import {
   collection,
@@ -300,10 +300,12 @@ export default function NewsEventsPage() {
                 filteredArticles.map((article) => (
                   <Card key={article.id} className="overflow-hidden">
                     <div className="aspect-video relative overflow-hidden">
-                      <img
+                      <Image
                         src={article.imageUrl || "/placeholder.svg"}
                         alt={article.title}
                         className="object-cover w-full h-full hover:scale-105 transition-transform duration-200"
+                        width={1920}
+                        height={1080}
                       />
                       <div className="absolute top-2 right-2">
                         <DropdownMenu>
@@ -370,7 +372,8 @@ export default function NewsEventsPage() {
                 ))
               ) : (
                 <div className="col-span-3 text-center text-muted-foreground">
-                  No articles found. Click 'Add Article' to create one.
+                  No articles found. Click &apos;Add Article&apos; to create
+                  one.
                 </div>
               )}
             </div>
@@ -389,9 +392,11 @@ export default function NewsEventsPage() {
                     </DialogHeader>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="aspect-video overflow-hidden rounded-lg">
-                        <img
+                        <Image
                           src={selectedArticle.imageUrl || "/placeholder.svg"}
                           alt={selectedArticle.title}
+                          width={1920}
+                          height={1080}
                           className="object-cover w-full h-full"
                         />
                       </div>
@@ -411,6 +416,7 @@ export default function NewsEventsPage() {
                             typeof selectedArticle.content === "string" &&
                             selectedArticle.content.startsWith("{")
                               ? JSON.parse(selectedArticle.content)
+                                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                   .blocks.map((block: any) => block.text)
                                   .join("\n")
                               : selectedArticle.content}

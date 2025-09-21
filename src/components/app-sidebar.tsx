@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GalleryVerticalEnd, ToyBrick } from "lucide-react";
+import { ToyBrick } from "lucide-react";
 
 import {
   Sidebar,
