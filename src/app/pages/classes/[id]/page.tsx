@@ -7,19 +7,6 @@ import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Hand,
-  Utensils,
-  Book,
-  Baby,
-  Lightbulb,
-  Handshake,
   Edit,
   Smile,
   Mic,
@@ -140,38 +127,46 @@ export default function DynamicClassPage() {
         return;
       }
       const docRef = doc(db, "classes", id as string);
-      await updateDoc(docRef, editedClassData);
+      await updateDoc(docRef, {
+        classname: editedClassData.classname,
+        ageRange: editedClassData.ageRange,
+        classSummary: editedClassData.classSummary,
+        imageUrl: editedClassData.imageUrl,
+        dailyLife: editedClassData.dailyLife,
+        funActivities: editedClassData.funActivities,
+        galleryImages: editedClassData.galleryImages,
+      });
       setClassData(editedClassData);
       setIsEditDialogOpen(false);
     }
   };
 
-  const handleDailyLifeChange = (
-    index: number,
-    field: string,
-    value: string
-  ) => {
-    if (editedClassData) {
-      const newDailyLife = [...editedClassData.dailyLife];
-      newDailyLife[index] = { ...newDailyLife[index], [field]: value };
-      setEditedClassData({ ...editedClassData, dailyLife: newDailyLife });
-    }
-  };
+  // const handleDailyLifeChange = (
+  //   index: number,
+  //   field: string,
+  //   value: string
+  // ) => {
+  //   if (editedClassData) {
+  //     const newDailyLife = [...editedClassData.dailyLife];
+  //     newDailyLife[index] = { ...newDailyLife[index], [field]: value };
+  //     setEditedClassData({ ...editedClassData, dailyLife: newDailyLife });
+  //   }
+  // };
 
-  const handleFunActivitiesChange = (
-    index: number,
-    field: string,
-    value: string
-  ) => {
-    if (editedClassData) {
-      const newFunActivities = [...editedClassData.funActivities];
-      newFunActivities[index] = { ...newFunActivities[index], [field]: value };
-      setEditedClassData({
-        ...editedClassData,
-        funActivities: newFunActivities,
-      });
-    }
-  };
+  // const handleFunActivitiesChange = (
+  //   index: number,
+  //   field: string,
+  //   value: string
+  // ) => {
+  //   if (editedClassData) {
+  //     const newFunActivities = [...editedClassData.funActivities];
+  //     newFunActivities[index] = { ...newFunActivities[index], [field]: value };
+  //     setEditedClassData({
+  //       ...editedClassData,
+  //       funActivities: newFunActivities,
+  //     });
+  //   }
+  // };
 
   const handleGalleryImageChange = (url: string) => {
     if (editedClassData) {
