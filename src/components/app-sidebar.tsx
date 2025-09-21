@@ -40,10 +40,6 @@ const data = {
           title: "News + Events",
           url: "/pages/news-events",
         },
-        {
-          title: "Blog",
-          url: "/pages/blog",
-        },
       ],
     },
   ],

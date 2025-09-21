@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from 'next/navigation';
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -21,6 +21,12 @@ import {
   Lightbulb,
   Handshake,
   Edit,
+  Smile,
+  Mic,
+  MessageCircle,
+  Paintbrush,
+  Cpu,
+  Puzzle,
 } from "lucide-react";
 
 import { CTA } from "@/components/cta";
@@ -74,8 +80,12 @@ export default function DynamicClassPage() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editedClassData, setEditedClassData] = useState<ClassData | null>(null);
-  const [storageImages, setStorageImages] = useState<{ name: string; url: string }[]>([]);
+  const [editedClassData, setEditedClassData] = useState<ClassData | null>(
+    null
+  );
+  const [storageImages, setStorageImages] = useState<
+    { name: string; url: string }[]
+  >([]);
 
   useEffect(() => {
     const fetchClassData = async () => {
@@ -136,7 +146,11 @@ export default function DynamicClassPage() {
     }
   };
 
-  const handleDailyLifeChange = (index: number, field: string, value: string) => {
+  const handleDailyLifeChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
     if (editedClassData) {
       const newDailyLife = [...editedClassData.dailyLife];
       newDailyLife[index] = { ...newDailyLife[index], [field]: value };
@@ -144,11 +158,18 @@ export default function DynamicClassPage() {
     }
   };
 
-  const handleFunActivitiesChange = (index: number, field: string, value: string) => {
+  const handleFunActivitiesChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
     if (editedClassData) {
       const newFunActivities = [...editedClassData.funActivities];
       newFunActivities[index] = { ...newFunActivities[index], [field]: value };
-      setEditedClassData({ ...editedClassData, funActivities: newFunActivities });
+      setEditedClassData({
+        ...editedClassData,
+        funActivities: newFunActivities,
+      });
     }
   };
 
@@ -161,7 +182,10 @@ export default function DynamicClassPage() {
       } else {
         newGalleryImages.push(url);
       }
-      setEditedClassData({ ...editedClassData, galleryImages: newGalleryImages });
+      setEditedClassData({
+        ...editedClassData,
+        galleryImages: newGalleryImages,
+      });
     }
   };
 
@@ -176,29 +200,34 @@ export default function DynamicClassPage() {
 
   if (loading) {
     return (
-        <div className="p-8">
-            <Skeleton className="h-32 w-full mb-4" />
-            <Skeleton className="h-8 w-1/2 mb-8" />
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-                <Skeleton className="w-full h-96" />
-                <div className="space-y-8">
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                </div>
-            </div>
+      <div className="p-8">
+        <Skeleton className="h-32 w-full mb-4" />
+        <Skeleton className="h-8 w-1/2 mb-8" />
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <Skeleton className="w-full h-96" />
+          <div className="space-y-8">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
         </div>
-    )
+      </div>
+    );
   }
 
   if (!classData) {
     return <div>Class not found.</div>;
   }
 
-  const classImages = (classData.galleryImages || []).map(url => ({ src: url, alt: classData.classname }));
+  const classImages = (classData.galleryImages || []).map((url) => ({
+    src: url,
+    alt: classData.classname,
+  }));
 
   return (
-    <SidebarProvider style={{ "--sidebar-width": "19rem" } as React.CSSProperties}>
+    <SidebarProvider
+      style={{ "--sidebar-width": "19rem" } as React.CSSProperties}
+    >
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 px-4 sticky top-0 z-10">
@@ -216,7 +245,10 @@ export default function DynamicClassPage() {
             </BreadcrumbList>
           </Breadcrumb>
           <div className="ml-auto">
-            <Button onClick={handleEdit}><Edit className="mr-2 h-4 w-4" />Edit</Button>
+            <Button onClick={handleEdit}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
           </div>
         </header>
         <main>
@@ -231,7 +263,8 @@ export default function DynamicClassPage() {
             <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
               <div className="text-center space-y-6">
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-800 leading-tight">
-                  Meet the <span className="text-orange-500">{classData.classname}</span>
+                  Meet the{" "}
+                  <span className="text-orange-500">{classData.classname}</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
                   {classData.classSummary}
@@ -241,17 +274,19 @@ export default function DynamicClassPage() {
           </section>
 
           {/* Daily Life Section */}
-          <section className="py-20 bg-white">
+          {/* Below is with dynamisism */}
+          {/* <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                  A Day in the <span className="text-orange-500">Life</span>
+                  A Day with the{" "}
+                  <span className="text-orange-500">{classData.classname}</span>
                 </h2>
               </div>
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="relative">
                   <Image
-                    src={classData.imageUrl || '/public/placeholder.svg'}
+                    src={classData.imageUrl || "/public/placeholder.svg"}
                     alt={classData.classname}
                     width={600}
                     height={400}
@@ -265,7 +300,9 @@ export default function DynamicClassPage() {
                         <Hand className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">{item.title}</h3>
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">
+                          {item.title}
+                        </h3>
                         <p className="text-gray-600">{item.description}</p>
                       </div>
                     </div>
@@ -273,10 +310,78 @@ export default function DynamicClassPage() {
                 </div>
               </div>
             </div>
+          </section> */}
+
+          <section className="py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4">
+                  A Day with the{" "}
+                  <span className="text-orange-500">{classData.classname}</span>
+                </h2>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div className="relative">
+                  <Image
+                    src={classData.imageUrl}
+                    alt={classData.classname}
+                    width={600}
+                    height={400}
+                    className="w-full h-auto rounded-2xl shadow-lg"
+                  />
+                </div>
+                <div className="space-y-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-blue-100 p-3 rounded-full">
+                      <Smile className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">
+                        Growing Independence
+                      </h3>
+                      <p className="text-gray-600">
+                        We are already potty trained and can do almost
+                        everything on our own.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-green-100 p-3 rounded-full">
+                      <Mic className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">
+                        Joyful Expressions
+                      </h3>
+                      <p className="text-gray-600">
+                        We love to laugh and sing and dance.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-purple-100 p-3 rounded-full">
+                      <MessageCircle className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">
+                        Chatterboxes
+                      </h3>
+                      <p className="text-gray-600">
+                        We can chat and reason and make you laugh.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Activities Section */}
-          <section className="py-20 bg-gradient-to-b from-sky-50 to-white">
+          {/* Below is with it being dynamic */}
+          {/* <section className="py-20 bg-gradient-to-b from-sky-50 to-white">
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold text-gray-800 mb-4">
@@ -285,16 +390,78 @@ export default function DynamicClassPage() {
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {(classData.funActivities || []).map((activity, index) => (
-                    <div key={index} className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4">
-                        <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                            {index % 3 === 0 && <Baby className="w-8 h-8 text-white" />}
-                            {index % 3 === 1 && <Lightbulb className="w-8 h-8 text-white" />}
-                            {index % 3 === 2 && <Handshake className="w-8 h-8 text-white" />}
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-800">{activity.title}</h3>
-                        <p className="text-gray-600">{activity.description}</p>
+                  <div
+                    key={index}
+                    className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4"
+                  >
+                    <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                      {index % 3 === 0 && (
+                        <Baby className="w-8 h-8 text-white" />
+                      )}
+                      {index % 3 === 1 && (
+                        <Lightbulb className="w-8 h-8 text-white" />
+                      )}
+                      {index % 3 === 2 && (
+                        <Handshake className="w-8 h-8 text-white" />
+                      )}
                     </div>
+                    <h3 className="text-xl font-bold text-gray-800">
+                      {activity.title}
+                    </h3>
+                    <p className="text-gray-600">{activity.description}</p>
+                  </div>
                 ))}
+              </div>
+            </div>
+          </section> */}
+          <section className="py-20 bg-gradient-to-b from-sky-50 to-white">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4">
+                  Our <span className="text-orange-500">Fun Activities</span>
+                </h2>
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                  Our daily program is filled with activities that are both fun
+                  and educational, helping us grow and learn.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4">
+                  <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                    <Paintbrush className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    Creative Minds
+                  </h3>
+                  <p className="text-gray-600">
+                    We can scribble and paint and cut and mold.
+                  </p>
+                </div>
+
+                <div className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4">
+                  <div className="bg-green-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                    <Cpu className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    Exploring & Building
+                  </h3>
+                  <p className="text-gray-600">
+                    We can build and climb and explore and lots more.
+                  </p>
+                </div>
+
+                <div className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4">
+                  <div className="bg-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                    <Puzzle className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    Problem Solvers
+                  </h3>
+                  <p className="text-gray-600">
+                    We love to solve puzzles and take on new challenges.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -304,7 +471,8 @@ export default function DynamicClassPage() {
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                  A Glimpse into Our <span className="text-orange-500">Classroom</span>
+                  A Glimpse into Our{" "}
+                  <span className="text-orange-500">Classroom</span>
                 </h2>
               </div>
               <div className="grid md:grid-cols-3 gap-8">
@@ -374,48 +542,92 @@ export default function DynamicClassPage() {
                 />
               </div>
 
-              <div>
+              {/* Daily life section */}
+              {/* <div>
                 <Label>Daily Life</Label>
-                {editedClassData.dailyLife && editedClassData.dailyLife.map((item, index) => (
-                  <div key={index} className="space-y-2 border p-2 rounded-md">
-                    <Input
-                      value={item.title}
-                      onChange={(e) => handleDailyLifeChange(index, "title", e.target.value)}
-                      placeholder="Title"
-                    />
-                    <Textarea
-                      value={item.description}
-                      onChange={(e) => handleDailyLifeChange(index, "description", e.target.value)}
-                      placeholder="Description"
-                    />
-                  </div>
-                ))}
-              </div>
-              <div>
+                {editedClassData.dailyLife &&
+                  editedClassData.dailyLife.map((item, index) => (
+                    <div
+                      key={index}
+                      className="space-y-2 border p-2 rounded-md"
+                    >
+                      <Input
+                        value={item.title}
+                        onChange={(e) =>
+                          handleDailyLifeChange(index, "title", e.target.value)
+                        }
+                        placeholder="Title"
+                      />
+                      <Textarea
+                        value={item.description}
+                        onChange={(e) =>
+                          handleDailyLifeChange(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Description"
+                      />
+                    </div>
+                  ))}
+              </div> */}
+
+              {/* Fun actibities section */}
+              {/* <div>
                 <Label>Fun Activities</Label>
-                {editedClassData.funActivities && editedClassData.funActivities.map((item, index) => (
-                  <div key={index} className="space-y-2 border p-2 rounded-md">
-                    <Input
-                      value={item.title}
-                      onChange={(e) => handleFunActivitiesChange(index, "title", e.target.value)}
-                      placeholder="Title"
-                    />
-                    <Textarea
-                      value={item.description}
-                      onChange={(e) => handleFunActivitiesChange(index, "description", e.target.value)}
-                      placeholder="Description"
-                    />
-                  </div>
-                ))}
-              </div>
+                {editedClassData.funActivities &&
+                  editedClassData.funActivities.map((item, index) => (
+                    <div
+                      key={index}
+                      className="space-y-2 border p-2 rounded-md"
+                    >
+                      <Input
+                        value={item.title}
+                        onChange={(e) =>
+                          handleFunActivitiesChange(
+                            index,
+                            "title",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Title"
+                      />
+                      <Textarea
+                        value={item.description}
+                        onChange={(e) =>
+                          handleFunActivitiesChange(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Description"
+                      />
+                    </div>
+                  ))}
+              </div> */}
               <div>
                 <Label>Gallery Images</Label>
-                <p className={`text-sm ${editedClassData.galleryImages.length === 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                <p
+                  className={`text-sm ${
+                    editedClassData.galleryImages.length === 0
+                      ? "text-red-500"
+                      : "text-gray-500"
+                  }`}
+                >
                   Select at least one image for the gallery.
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   {storageImages.map((image) => (
-                    <div key={image.url} className={`relative border-2 ${editedClassData.galleryImages.includes(image.url) ? 'border-blue-500' : ''}`}>
+                    <div
+                      key={image.url}
+                      className={`relative border-2 ${
+                        editedClassData.galleryImages.includes(image.url)
+                          ? "border-blue-500"
+                          : ""
+                      }`}
+                    >
                       <Image
                         src={image.url}
                         alt={image.name}
@@ -431,7 +643,10 @@ export default function DynamicClassPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleSaveChanges}>Save Changes</Button>
