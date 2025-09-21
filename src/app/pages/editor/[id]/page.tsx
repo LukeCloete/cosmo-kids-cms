@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { EditorState, convertToRaw, convertFromRaw } from 'draft-js';
-import { Editor } from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { EditorState, convertToRaw, convertFromRaw } from "draft-js";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
@@ -48,7 +48,9 @@ export default function ArticleEditorPage() {
   const [date, setDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [storageImages, setStorageImages] = useState<{ name: string; url: string }[]>([]);
+  const [storageImages, setStorageImages] = useState<
+    { name: string; url: string }[]
+  >([]);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -92,13 +94,13 @@ export default function ArticleEditorPage() {
     const content = JSON.stringify(convertToRaw(contentState));
 
     if (id) {
-        const docRef = doc(db, "news-events", id as string);
-        await updateDoc(docRef, {
-            content,
-        });
+      const docRef = doc(db, "news-events", id as string);
+      await updateDoc(docRef, {
+        content,
+      });
     }
 
-    router.push('/pages/news-events');
+    router.push("/pages/news-events");
   };
 
   return (
@@ -117,7 +119,9 @@ export default function ArticleEditorPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/pages/news-events">News & Events</BreadcrumbLink>
+                <BreadcrumbLink href="/pages/news-events">
+                  News & Events
+                </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -129,62 +133,68 @@ export default function ArticleEditorPage() {
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Edit Full Content</h1>
-                <div className="flex gap-2">
-                    <Link href="/pages/news-events">
-                        <Button variant="outline">Back</Button>
-                    </Link>
-                    <Button onClick={handleSave}>Save Content</Button>
-                </div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Edit Article
+              </h1>
+              <div className="flex gap-2">
+                <Link href="/pages/news-events">
+                  <Button variant="outline">Back</Button>
+                </Link>
+                <Button onClick={handleSave}>Save Content</Button>
+              </div>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
-                <div className="md:col-span-2 space-y-4">
-                    <Input placeholder="Article Title" value={title} disabled />
-                    <Textarea placeholder="Short Description" value={description} disabled />
-                    <Editor
-                        editorState={editorState}
-                        onEditorStateChange={setEditorState}
-                        wrapperClassName="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-within:outline-none focus-within:ring-1 focus-within:ring-ring"
-                        editorClassName="min-h-[200px]"
-                    />
+              <div className="md:col-span-2 space-y-4">
+                <Input placeholder="Article Title" value={title} disabled />
+                <Textarea
+                  placeholder="Short Description"
+                  value={description}
+                  disabled
+                />
+                <Editor
+                  editorState={editorState}
+                  onEditorStateChange={setEditorState}
+                  wrapperClassName="rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-within:outline-none focus-within:ring-1 focus-within:ring-ring"
+                  editorClassName="min-h-[200px]"
+                />
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Author</Label>
+                  <Input value={author} disabled />
                 </div>
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label>Author</Label>
-                        <Input value={author} disabled />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Category</Label>
-                        <Select value={category} disabled>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="News">News</SelectItem>
-                                <SelectItem value="Events">Events</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Date</Label>
-                        <Input type="date" value={date} disabled />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Featured Image</Label>
-                        <Select value={imageUrl} disabled>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select an image" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {storageImages.map((image) => (
-                                <SelectItem key={image.url} value={image.url}>
-                                    {image.name}
-                                </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select value={category} disabled>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="News">News</SelectItem>
+                      <SelectItem value="Events">Events</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input type="date" value={date} disabled />
+                </div>
+                <div className="space-y-2">
+                  <Label>Featured Image</Label>
+                  <Select value={imageUrl} disabled>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an image" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {storageImages.map((image) => (
+                        <SelectItem key={image.url} value={image.url}>
+                          {image.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
