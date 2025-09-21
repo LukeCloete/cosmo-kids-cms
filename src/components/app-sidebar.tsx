@@ -38,7 +38,7 @@ const data = {
         },
         {
           title: "News + Events",
-          url: "/pages/news",
+          url: "/pages/news-events",
         },
       ],
     },

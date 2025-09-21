@@ -1,6 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getStorage, ref, getDownloadURL, listAll } from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+  addDoc,
+} from "firebase/firestore";
+import staffImage from "../../../_images/cosmo-kids-staff.jpg";
+import Image from "next/image";
+
 import {
   Upload,
   Search,
@@ -57,93 +70,63 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
 
-// Mock data for gallery images
-const mockImages = [
-  {
-    id: 1,
-    title: "Children Playing Outside",
-    description: "Kids enjoying outdoor activities in our playground",
-    url: "/children-playing-outside-playground.jpg",
-    category: "Activities",
-    tags: ["playground", "outdoor", "fun"],
-    uploadDate: "2024-01-15",
-    size: "2.3 MB",
-    dimensions: "1920x1080",
-  },
-  {
-    id: 2,
-    title: "Art Class Session",
-    description: "Creative art time with colorful paintings",
-    url: "/children-art-class-painting-creative.jpg",
-    category: "Education",
-    tags: ["art", "creative", "learning"],
-    uploadDate: "2024-01-14",
-    size: "1.8 MB",
-    dimensions: "1600x900",
-  },
-  {
-    id: 3,
-    title: "Story Time Circle",
-    description: "Children gathered for story reading session",
-    url: "/children-story-time-reading-circle.jpg",
-    category: "Education",
-    tags: ["reading", "story", "group"],
-    uploadDate: "2024-01-13",
-    size: "2.1 MB",
-    dimensions: "1920x1080",
-  },
-  {
-    id: 4,
-    title: "Lunch Time Fun",
-    description: "Happy meal time with healthy food",
-    url: "/children-lunch-healthy-food-happy.jpg",
-    category: "Daily Life",
-    tags: ["lunch", "healthy", "social"],
-    uploadDate: "2024-01-12",
-    size: "1.5 MB",
-    dimensions: "1600x900",
-  },
-  {
-    id: 5,
-    title: "Music and Dance",
-    description: "Children enjoying music and movement activities",
-    url: "/children-music-dance-movement-activities.jpg",
-    category: "Activities",
-    tags: ["music", "dance", "movement"],
-    uploadDate: "2024-01-11",
-    size: "2.7 MB",
-    dimensions: "1920x1080",
-  },
-  {
-    id: 6,
-    title: "Science Exploration",
-    description: "Hands-on science experiments and discovery",
-    url: "/children-science-experiments-discovery-learning.jpg",
-    category: "Education",
-    tags: ["science", "experiments", "discovery"],
-    uploadDate: "2024-01-10",
-    size: "2.0 MB",
-    dimensions: "1600x900",
-  },
-];
+interface Image {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  category: string;
+  tags: string[];
+  uploadDate: string;
+  size: string;
+  dimensions: string;
+}
 
 const categories = ["All", "Activities", "Education", "Daily Life", "Events"];
 
 export default function GalleryManagement() {
-  const [images, setImages] = useState(mockImages);
+  const [images, setImages] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedImage, setSelectedImage] = useState<
-    (typeof mockImages)[0] | null
-  >(null);
+  const [selectedImage, setSelectedImage] = useState<any | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
+  const [storageImages, setStorageImages] = useState<
+    { name: string; url: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const querySnapshot = await getDocs(collection(db, "gallery"));
+      const imagesData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setImages(imagesData);
+    };
+
+    const fetchStorageImages = async () => {
+      const listRef = ref(storage);
+      const res = await listAll(listRef);
+      const images = await Promise.all(
+        res.items.map(async (itemRef) => {
+          const url = await getDownloadURL(itemRef);
+          return { name: itemRef.name, url };
+        })
+      );
+      setStorageImages(images);
+    };
+
+    fetchImages();
+    fetchStorageImages();
+  }, []);
 
   const filteredImages = images.filter((image) => {
     const matchesSearch =
       image.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       image.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      image.tags.some((tag) =>
+      image.tags.some((tag: any) =>
         tag.toLowerCase().includes(searchTerm.toLowerCase())
       );
     const matchesCategory =
@@ -151,11 +134,12 @@ export default function GalleryManagement() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleDeleteImage = (id: number) => {
+  const handleDeleteImage = async (id: string) => {
+    await deleteDoc(doc(db, "gallery", id));
     setImages(images.filter((img) => img.id !== id));
   };
 
-  const handleEditImage = (image: (typeof mockImages)[0]) => {
+  const handleEditImage = (image: any) => {
     setSelectedImage(image);
     setIsEditOpen(true);
   };
@@ -197,6 +181,7 @@ export default function GalleryManagement() {
                   Manage images for your homepage and gallery page
                 </p>
               </div>
+
               <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
                 <DialogTrigger asChild>
                   <Button>
@@ -266,7 +251,7 @@ export default function GalleryManagement() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-4">
+            {/* <div className="grid gap-4 md:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
@@ -329,7 +314,7 @@ export default function GalleryManagement() {
                   </p>
                 </CardContent>
               </Card>
-            </div>
+            </div> */}
 
             {/* Filters and Search */}
             <div className="flex flex-col sm:flex-row gap-4">
@@ -384,13 +369,19 @@ export default function GalleryManagement() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem
-                            onClick={() => setSelectedImage(image)}
+                            onClick={() => {
+                              setSelectedImage(image);
+                              setIsViewDetailsOpen(true);
+                            }}
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleEditImage(image)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditImage(image);
+                            }}
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
@@ -419,7 +410,7 @@ export default function GalleryManagement() {
                         {image.description}
                       </p>
                       <div className="flex flex-wrap gap-1">
-                        {image.tags.slice(0, 3).map((tag) => (
+                        {image.tags.slice(0, 3).map((tag: any) => (
                           <Badge
                             key={tag}
                             variant="outline"
@@ -436,7 +427,6 @@ export default function GalleryManagement() {
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{image.uploadDate}</span>
-                        <span>{image.size}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -446,8 +436,8 @@ export default function GalleryManagement() {
 
             {/* Image Details Dialog */}
             <Dialog
-              open={!!selectedImage}
-              onOpenChange={() => setSelectedImage(null)}
+              open={isViewDetailsOpen}
+              onOpenChange={setIsViewDetailsOpen}
             >
               <DialogContent className="sm:max-w-[700px]">
                 {selectedImage && (
@@ -486,7 +476,7 @@ export default function GalleryManagement() {
                         <div>
                           <Label className="text-sm font-medium">Tags</Label>
                           <div className="flex flex-wrap gap-1 mt-1">
-                            {selectedImage.tags.map((tag) => (
+                            {selectedImage.tags.map((tag: any) => (
                               <Badge
                                 key={tag}
                                 variant="outline"
@@ -543,26 +533,62 @@ export default function GalleryManagement() {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="space-y-2">
+                        <Label htmlFor="edit-image">Image</Label>
+                        <Select
+                          onValueChange={(url) =>
+                            setSelectedImage({ ...selectedImage, url })
+                          }
+                          defaultValue={selectedImage.url}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {storageImages.map((image) => (
+                              <SelectItem key={image.url} value={image.url}>
+                                {image.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
                         <Label htmlFor="edit-title">Title</Label>
                         <Input
                           id="edit-title"
-                          defaultValue={selectedImage.title}
+                          value={selectedImage.title}
+                          onChange={(e) =>
+                            setSelectedImage({
+                              ...selectedImage,
+                              title: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="edit-description">Description</Label>
                         <Textarea
                           id="edit-description"
-                          defaultValue={selectedImage.description}
+                          value={selectedImage.description}
+                          onChange={(e) =>
+                            setSelectedImage({
+                              ...selectedImage,
+                              description: e.target.value,
+                            })
+                          }
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="edit-category">Category</Label>
                           <Select
-                            defaultValue={selectedImage.category
-                              .toLowerCase()
-                              .replace(" ", "-")}
+                            onValueChange={(value) =>
+                              setSelectedImage({
+                                ...selectedImage,
+                                category: value,
+                              })
+                            }
+                            defaultValue={selectedImage.category}
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -585,7 +611,15 @@ export default function GalleryManagement() {
                           <Label htmlFor="edit-tags">Tags</Label>
                           <Input
                             id="edit-tags"
-                            defaultValue={selectedImage.tags.join(", ")}
+                            value={selectedImage.tags.join(", ")}
+                            onChange={(e) =>
+                              setSelectedImage({
+                                ...selectedImage,
+                                tags: e.target.value
+                                  .split(",")
+                                  .map((tag) => tag.trim()),
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -597,7 +631,25 @@ export default function GalleryManagement() {
                       >
                         Cancel
                       </Button>
-                      <Button onClick={() => setIsEditOpen(false)}>
+                      <Button
+                        onClick={async () => {
+                          if (selectedImage) {
+                            const imageRef = doc(
+                              db,
+                              "gallery",
+                              selectedImage.id
+                            );
+                            await updateDoc(imageRef, selectedImage);
+                            const updatedImages = images.map((image) =>
+                              image.id === selectedImage.id
+                                ? selectedImage
+                                : image
+                            );
+                            setImages(updatedImages);
+                            setIsEditOpen(false);
+                          }
+                        }}
+                      >
                         Save Changes
                       </Button>
                     </DialogFooter>
