@@ -23,11 +23,11 @@ const data = {
       title: "Pages",
       url: "#",
       items: [
-        {
-          title: "Home",
-          url: "/pages/home",
-          isActive: true,
-        },
+        // {
+        //   title: "Home",
+        //   url: "/pages/home",
+        //   isActive: true,
+        // },
         {
           title: "Classes",
           url: "/pages/classes",
@@ -35,6 +35,7 @@ const data = {
         {
           title: "Gallery",
           url: "/pages/gallery",
+          isActive: true,
         },
         {
           title: "News + Events",

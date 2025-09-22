@@ -128,6 +128,7 @@ export default function GalleryManagement() {
       setStorageImages(images);
     };
 
+    console.log("this is in the useeffect");
     fetchImages();
     fetchStorageImages();
   }, []);
@@ -177,7 +178,7 @@ export default function GalleryManagement() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Home</BreadcrumbPage>
+                <BreadcrumbPage>Gallery</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -550,27 +551,7 @@ export default function GalleryManagement() {
                         Update image information and metadata
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-image">Image</Label>
-                        <Select
-                          onValueChange={(url) =>
-                            setSelectedImage({ ...selectedImage, url })
-                          }
-                          defaultValue={selectedImage.url}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {storageImages.map((image) => (
-                              <SelectItem key={image.url} value={image.url}>
-                                {image.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-4 max-h-[80vh] overflow-y-auto">
                       <div className="space-y-2">
                         <Label htmlFor="edit-title">Title</Label>
                         <Input
@@ -640,6 +621,35 @@ export default function GalleryManagement() {
                               })
                             }
                           />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-image">Image</Label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {storageImages.map((image) => (
+                              <div
+                                key={image.url}
+                                className={`relative border-2 rounded-md overflow-hidden cursor-pointer transition-all duration-200 ${
+                                  selectedImage?.url === image.url
+                                    ? "border-blue-500 ring-2 ring-blue-500"
+                                    : "border-transparent hover:border-gray-300"
+                                }`}
+                                onClick={() =>
+                                  setSelectedImage({
+                                    ...selectedImage,
+                                    url: image.url,
+                                  })
+                                }
+                              >
+                                <Image
+                                  src={image.url}
+                                  alt={image.name}
+                                  width={150}
+                                  height={100}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>

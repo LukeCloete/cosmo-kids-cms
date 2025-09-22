@@ -143,58 +143,58 @@ export default function NewsEventsPage() {
     setIsEditOpen(true);
   };
 
-  const handleDeleteAllArticles = async () => {
-    const querySnapshot = await getDocs(collection(db, "news-events"));
-    const batch = writeBatch(db);
-    querySnapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-    await batch.commit();
-    fetchArticles();
-  };
+  // const handleDeleteAllArticles = async () => {
+  //   const querySnapshot = await getDocs(collection(db, "news-events"));
+  //   const batch = writeBatch(db);
+  //   querySnapshot.docs.forEach((doc) => {
+  //     batch.delete(doc.ref);
+  //   });
+  //   await batch.commit();
+  //   fetchArticles();
+  // };
 
-  const handlePopulateDatabase = async () => {
-    const fakeArticles: Omit<Article, "id">[] = [
-      {
-        title: "Story Night 2021",
-        description:
-          "Join us for an evening of storytelling, fun activities, and community bonding.",
-        content:
-          '{"blocks":[{"key":"bu2d","text":"This is the full content for Story Night 2021.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
-        date: "2021-03-15",
-        imageUrl: "/news1.jpg",
-        category: "Events",
-        author: "Jane Doe",
-      },
-      {
-        title: "Cosmo Holiday Fun",
-        description:
-          "Fun and educational activities to keep your children engaged throughout the changing seasons.",
-        content:
-          '{"blocks":[{"key":"bu2d","text":"This is the full content for Cosmo Holiday Fun.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
-        date: "2021-02-17",
-        imageUrl: "/news2.jpg",
-        category: "News",
-        author: "John Smith",
-      },
-      {
-        title: "Sleepover Coming Soon!",
-        description:
-          "Get ready for a night of fun, games, and learning with our upcoming sleepover event.",
-        content:
-          '{"blocks":[{"key":"bu2d","text":"This is the full content for the Sleepover.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
-        date: "2021-01-05",
-        imageUrl: "/news3.jpg",
-        category: "Events",
-        author: "Peter Pan",
-      },
-    ];
+  // const handlePopulateDatabase = async () => {
+  //   const fakeArticles: Omit<Article, "id">[] = [
+  //     {
+  //       title: "Story Night 2021",
+  //       description:
+  //         "Join us for an evening of storytelling, fun activities, and community bonding.",
+  //       content:
+  //         '{"blocks":[{"key":"bu2d","text":"This is the full content for Story Night 2021.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+  //       date: "2021-03-15",
+  //       imageUrl: "/news1.jpg",
+  //       category: "Events",
+  //       author: "Jane Doe",
+  //     },
+  //     {
+  //       title: "Cosmo Holiday Fun",
+  //       description:
+  //         "Fun and educational activities to keep your children engaged throughout the changing seasons.",
+  //       content:
+  //         '{"blocks":[{"key":"bu2d","text":"This is the full content for Cosmo Holiday Fun.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+  //       date: "2021-02-17",
+  //       imageUrl: "/news2.jpg",
+  //       category: "News",
+  //       author: "John Smith",
+  //     },
+  //     {
+  //       title: "Sleepover Coming Soon!",
+  //       description:
+  //         "Get ready for a night of fun, games, and learning with our upcoming sleepover event.",
+  //       content:
+  //         '{"blocks":[{"key":"bu2d","text":"This is the full content for the Sleepover.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}',
+  //       date: "2021-01-05",
+  //       imageUrl: "/news3.jpg",
+  //       category: "Events",
+  //       author: "Peter Pan",
+  //     },
+  //   ];
 
-    for (const article of fakeArticles) {
-      await addDoc(collection(db, "news-events"), article);
-    }
-    fetchArticles();
-  };
+  //   for (const article of fakeArticles) {
+  //     await addDoc(collection(db, "news-events"), article);
+  //   }
+  //   fetchArticles();
+  // };
 
   return (
     <SidebarProvider
@@ -235,12 +235,6 @@ export default function NewsEventsPage() {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={handlePopulateDatabase}>
-                  Populate Database
-                </Button>
-                <Button variant="destructive" onClick={handleDeleteAllArticles}>
-                  Delete All Articles
-                </Button>
                 <Link href="/pages/editor">
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
@@ -320,15 +314,7 @@ export default function NewsEventsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedArticle(article);
-                                setIsViewDetailsOpen(true);
-                              }}
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
-                            </DropdownMenuItem>
+
                             <DropdownMenuItem
                               onClick={() => handleEditArticle(article)}
                             >
@@ -462,30 +448,7 @@ export default function NewsEventsPage() {
                         Update article information
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-image">Image</Label>
-                        <Select
-                          onValueChange={(url) =>
-                            setSelectedArticle({
-                              ...selectedArticle,
-                              imageUrl: url,
-                            })
-                          }
-                          defaultValue={selectedArticle.imageUrl}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {storageImages.map((image) => (
-                              <SelectItem key={image.url} value={image.url}>
-                                {image.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-4 max-h-[80vh] overflow-y-auto">
                       <div className="space-y-2">
                         <Label htmlFor="edit-title">Title</Label>
                         <Input
@@ -560,6 +523,35 @@ export default function NewsEventsPage() {
                             }
                           />
                         </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-image">Image</Label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {storageImages.map((image) => (
+                              <div
+                                key={image.url}
+                                className={`relative border-2 rounded-md overflow-hidden cursor-pointer transition-all duration-200 ${
+                                  selectedArticle?.imageUrl === image.url
+                                    ? "border-blue-500 ring-2 ring-blue-500"
+                                    : "border-transparent hover:border-gray-300"
+                                }`}
+                                onClick={() =>
+                                  setSelectedArticle({
+                                    ...selectedArticle,
+                                    imageUrl: image.url,
+                                  })
+                                }
+                              >
+                                <Image
+                                  src={image.url}
+                                  alt={image.name}
+                                  width={150}
+                                  height={100}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <DialogFooter className="justify-between">
@@ -567,9 +559,14 @@ export default function NewsEventsPage() {
                         href={`/pages/editor/${selectedArticle.id}`}
                         passHref
                       >
-                        <Button variant="outline">Edit Full Content</Button>
+                        <Button
+                          variant="outline"
+                          className="bg-orange-500 hover:bg-orange-600 text-white"
+                        >
+                          Edit Article
+                        </Button>
                       </Link>
-                      <div>
+                      <div className="flex space-x-2 ">
                         <Button
                           variant="outline"
                           onClick={() => setIsEditOpen(false)}
