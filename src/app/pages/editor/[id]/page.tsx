@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { EditorState, convertToRaw, convertFromRaw } from "draft-js";
-import { Editor } from "react-draft-wysiwyg";
+import dynamic from "next/dynamic";
+
+const Editor = dynamic(
+  () => import("react-draft-wysiwyg").then((mod) => mod.Editor),
+  {
+    ssr: false,
+  }
+);
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";

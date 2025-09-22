@@ -26,7 +26,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -36,40 +35,33 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"; // Added Select imports
 import { MoreHorizontal, Edit } from "lucide-react";
 
 import { db, storage } from "@/lib/firebase";
-import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc } from "firebase/firestore"; // Removed addDoc, deleteDoc
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import { useEffect } from "react";
 
 interface Class {
-  id: string; // Firebase document ID
+  id: string;
   classname: string;
   ageRange: string;
   description: string;
-  imageUrl: string; // Added imageUrl field
+  imageUrl: string;
 }
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [storageImages, setStorageImages] = useState<{ name: string; url: string }[]>([]);
+  const [storageImages, setStorageImages] = useState<
+    { name: string; url: string }[]
+  >([]);
 
-  // Define the desired order of class names
   const CLASS_ORDER = [
     "Bouncy Bunnies",
     "Jolly Giraffe",
@@ -124,149 +116,31 @@ export default function ClassesPage() {
 
     fetchClasses();
     fetchStorageImages();
-  }, []);
+  });
 
   const handleEditClass = (classItem: Class) => {
     setSelectedClass(classItem);
     setIsEditOpen(true);
   };
 
-  const handleSaveChanges = async () => {
-    if (selectedClass) {
-      const classRef = doc(db, "classes", selectedClass.id);
-      await updateDoc(classRef, {
-        classname: selectedClass.classname,
-        ageRange: selectedClass.ageRange,
-        description: selectedClass.description,
-        imageUrl: selectedClass.imageUrl,
-      });
-      setClasses(
-        classes.map((cls) =>
-          cls.id === selectedClass.id ? selectedClass : cls
-        )
-      );
-      setIsEditOpen(false);
-    }
-  };
+  // const handleSaveChanges = async () => {
+  //   if (selectedClass) {
+  //     const classRef = doc(db, "classes", selectedClass.id);
+  //     await updateDoc(classRef, {
+  //       classname: selectedClass.classname,
+  //       ageRange: selectedClass.ageRange,
+  //       description: selectedClass.description,
+  //       imageUrl: selectedClass.imageUrl,
+  //     });
+  //     setClasses(
+  //       classes.map((cls) =>
+  //         cls.id === selectedClass.id ? selectedClass : cls
+  //       )
+  //     );
+  //     setIsEditOpen(false);
+  //   }
+  // };
 
-  const handleDeleteAllClasses = async () => {
-    if (window.confirm("Are you sure you want to delete all classes? This action cannot be undone.")) {
-      const classesCollectionRef = collection(db, "classes");
-      const data = await getDocs(classesCollectionRef);
-      for (const docSnapshot of data.docs) {
-        await deleteDoc(doc(db, "classes", docSnapshot.id));
-      }
-      fetchClasses(); // Refresh the list of classes
-    }
-  };
-
-  const handleRepopulateClasses = async () => {
-    const classesCollectionRef = collection(db, "classes");
-    const sampleClasses = [
-      {
-        classname: "Bouncy Bunnies",
-        ageRange: "2-3 years",
-        description: "A fun and engaging class for toddlers, focusing on sensory play and early social skills.",
-        imageUrl: "/bouncy-bunny.webp",
-        classSummary: "Our Bouncy Bunnies class is a warm and safe environment for our learners, aged 2-3 years. We focus on developing motor skills and social interaction through playful activities.",
-        dailyLife: [
-          { title: "Morning Circle", description: "Greeting, songs, and story time." },
-          { title: "Sensory Play", description: "Exploring textures, sounds, and colors." },
-          { title: "Cosmo Diaries", description: "" },
-        ],
-        funActivities: [
-          { title: "Finger Painting", description: "Creative expression with colors." },
-          { title: "Building Blocks", description: "Developing fine motor skills." },
-        ],
-        galleryImages: [],
-      },
-      {
-        classname: "Jolly Giraffe",
-        ageRange: "3-4 years",
-        description: "An exciting class for preschoolers, introducing basic concepts and fostering creativity.",
-        imageUrl: "/jolly-giraffe.webp",
-        classSummary: "The Jolly Giraffe class is designed for children aged 3-4 years, offering a blend of structured learning and creative exploration. We encourage curiosity and independent thinking.",
-        dailyLife: [
-          { title: "Learning Centers", description: "Exploring various educational stations." },
-          { title: "Outdoor Play", description: "Gross motor skill development and fresh air." },
-        ],
-        funActivities: [
-          { title: "Storytelling", description: "Developing imagination and language skills." },
-          { title: "Music & Movement", description: "Rhythm, coordination, and self-expression." },
-        ],
-        galleryImages: [],
-      },
-      {
-        classname: "Smart Lions",
-        ageRange: "4-5 years",
-        description: "A stimulating class for pre-kindergarteners, preparing them for school with advanced learning.",
-        imageUrl: "/smart-lions.webp",
-        classSummary: "Our Smart Lions class caters to 4-5 year olds, providing a strong foundation for kindergarten. We focus on literacy, numeracy, and problem-solving skills in a supportive environment.",
-        dailyLife: [
-          { title: "Literacy Focus", description: "Phonics, early reading, and writing." },
-          { title: "Math & Science", description: "Hands-on experiments and number concepts." },
-        ],
-        funActivities: [
-          { title: "Art Projects", description: "Encouraging creativity and fine motor skills." },
-          { title: "Group Games", description: "Teamwork, sportsmanship, and social development." },
-        ],
-        galleryImages: [],
-      },
-      {
-        classname: "Clever Cats",
-        ageRange: "5-6 years",
-        description: "An advanced class for kindergarteners, fostering critical thinking and independent learning.",
-        imageUrl: "/clever-cats.webp",
-        classSummary: "The Clever Cats class is for children aged 5-6 years, focusing on advanced academic concepts and critical thinking. We prepare them for elementary school with a strong emphasis on problem-solving and creativity.",
-        dailyLife: [
-          { title: "Advanced Reading", description: "Reading comprehension and fluency." },
-          { title: "Creative Writing", description: "Developing storytelling and writing skills." },
-        ],
-        funActivities: [
-          { title: "Science Experiments", description: "Exploring scientific principles through hands-on activities." },
-          { title: "Debate Club", description: "Developing public speaking and critical thinking skills." },
-        ],
-        galleryImages: [],
-      },
-      {
-        classname: "Wise Mice",
-        ageRange: "6-7 years",
-        description: "A specialized class for early elementary students, focusing on STEM and collaborative projects.",
-        imageUrl: "/wise-mice.webp",
-        classSummary: "Our Wise Mice class is designed for 6-7 year olds, with a strong focus on STEM education and collaborative projects. We encourage innovation and teamwork to solve real-world problems.",
-        dailyLife: [
-          { title: "Robotics Club", description: "Introduction to robotics and coding." },
-          { title: "Environmental Studies", description: "Learning about nature and sustainability." },
-        ],
-        funActivities: [
-          { title: "Coding Challenges", description: "Developing logical thinking and problem-solving skills." },
-          { title: "Gardening Project", description: "Learning about plant life and ecosystems." },
-        ],
-        galleryImages: [],
-      },
-      {
-        classname: "Brainy Elephants",
-        ageRange: "7-8 years",
-        description: "A comprehensive class for elementary students, focusing on advanced academics and leadership skills.",
-        imageUrl: "/brainy-elephant.webp",
-        classSummary: "The Brainy Elephants class is for children aged 7-8 years, offering an advanced curriculum and leadership development. We foster independent research, critical analysis, and effective communication.",
-        dailyLife: [
-          { title: "Research Projects", description: "Developing research and presentation skills." },
-          { title: "Leadership Workshops", description: "Building confidence and leadership qualities." },
-        ],
-        funActivities: [
-          { title: "Debate and Public Speaking", description: "Enhancing communication and persuasive skills." },
-          { title: "Community Service", description: "Promoting social responsibility and empathy." },
-        ],
-        galleryImages: [],
-      },
-    ];
-
-    for (const classData of sampleClasses) {
-      await addDoc(classesCollectionRef, classData);
-    }
-    fetchClasses(); // Refresh the list of classes
-  };
   return (
     <>
       <SidebarProvider
@@ -292,10 +166,6 @@ export default function ClassesPage() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="ml-auto flex gap-2">
-              <Button onClick={handleDeleteAllClasses} variant="destructive">Delete All</Button>
-              <Button onClick={handleRepopulateClasses} variant="default">Repopulate</Button>
-            </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
             <section className="py-20 bg-blue-600 relative overflow-hidden">
@@ -438,7 +308,14 @@ export default function ClassesPage() {
                   <Label htmlFor="edit-image">Image</Label>
                   <div className="grid grid-cols-3 gap-2">
                     {storageImages.map((image) => (
-                      <div key={image.url} className={`relative border-2 ${selectedClass?.imageUrl === image.url ? 'border-blue-500' : ''}`}>
+                      <div
+                        key={image.url}
+                        className={`relative border-2 ${
+                          selectedClass?.imageUrl === image.url
+                            ? "border-blue-500"
+                            : ""
+                        }`}
+                      >
                         <Image
                           src={image.url}
                           alt={image.name}
