@@ -9,8 +9,6 @@ import {
   getDocs,
   doc,
   deleteDoc,
-  addDoc,
-  writeBatch,
   updateDoc,
 } from "firebase/firestore";
 import Image from "next/image";
@@ -19,7 +17,6 @@ import {
   Search,
   Filter,
   MoreHorizontal,
-  Eye,
   Edit,
   Trash2,
   Plus,
