@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ref, getDownloadURL, listAll } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import {
@@ -87,6 +87,14 @@ export default function GalleryManagement() {
   const [images, setImages] = useState<Image[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setSelectedFiles(Array.from(event.target.files));
+    }
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
@@ -128,7 +136,6 @@ export default function GalleryManagement() {
       setStorageImages(images);
     };
 
-    console.log("this is in the useeffect");
     fetchImages();
     fetchStorageImages();
   }, []);
@@ -215,7 +222,19 @@ export default function GalleryManagement() {
                     <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
                       <Upload className="mx-auto h-12 w-12 text-muted-foreground/50" />
                       <div className="mt-4">
-                        <Button variant="outline">Choose Files</Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileSelect}
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          Choose Files
+                        </Button>
                         <p className="mt-2 text-sm text-muted-foreground">
                           or drag and drop files here
                         </p>
@@ -224,6 +243,16 @@ export default function GalleryManagement() {
                         PNG, JPG, GIF up to 10MB each
                       </p>
                     </div>
+                    {selectedFiles.length > 0 && (
+                      <div>
+                        <p className="font-medium">Selected Files:</p>
+                        <ul className="list-disc list-inside">
+                          {selectedFiles.map((file) => (
+                            <li key={file.name}>{file.name}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="category">Category</Label>
