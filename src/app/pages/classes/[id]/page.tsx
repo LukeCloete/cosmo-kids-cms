@@ -8,13 +8,10 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, listAll, ref } from "firebase/storage";
 import {
   Edit,
-  Smile,
-  Mic,
-  MessageCircle,
-  Paintbrush,
-  Cpu,
-  Puzzle,
+  Info,
+  
 } from "lucide-react";
+import { DynamicIcon } from "@/components/dynamic-icon";
 
 import { CTA } from "@/components/cta";
 import { GalleryOverlay } from "@/components/gallery-overlay";
@@ -46,6 +43,12 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Define the structure for class data
 interface ClassData {
@@ -53,8 +56,8 @@ interface ClassData {
   ageRange: string;
   classSummary: string;
   imageUrl: string;
-  dailyLife: { title: string; description: string }[];
-  funActivities: { title: string; description: string }[];
+  dailyLife: { lucideIcon: string; title: string; description: string }[];
+  funActivities: { lucideIcon: string; title: string; description: string }[];
   galleryImages: string[];
 }
 
@@ -113,9 +116,17 @@ export default function DynamicClassPage() {
     if (classData) {
       const newDailyLife = [...classData.dailyLife];
       while (newDailyLife.length < 3) {
-        newDailyLife.push({ title: "", description: "" });
+        newDailyLife.push({ title: "", description: "", lucideIcon: "" });
       }
-      setEditedClassData({ ...classData, dailyLife: newDailyLife });
+      const newFunActivities = [...classData.funActivities];
+      while (newFunActivities.length < 3) {
+        newFunActivities.push({ title: "", description: "", lucideIcon: "" });
+      }
+      setEditedClassData({
+        ...classData,
+        dailyLife: newDailyLife,
+        funActivities: newFunActivities,
+      });
     }
     setIsEditDialogOpen(true);
   };
@@ -141,32 +152,40 @@ export default function DynamicClassPage() {
     }
   };
 
-  // const handleDailyLifeChange = (
-  //   index: number,
-  //   field: string,
-  //   value: string
-  // ) => {
-  //   if (editedClassData) {
-  //     const newDailyLife = [...editedClassData.dailyLife];
-  //     newDailyLife[index] = { ...newDailyLife[index], [field]: value };
-  //     setEditedClassData({ ...editedClassData, dailyLife: newDailyLife });
-  //   }
-  // };
+  const handleDailyLifeChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    if (editedClassData) {
+      const newDailyLife = [...editedClassData.dailyLife];
+      // Auto-capitalize first letter for lucideIcon
+      if (field === "lucideIcon") {
+        value = value.charAt(0).toUpperCase() + value.slice(1);
+      }
+      newDailyLife[index] = { ...newDailyLife[index], [field]: value };
+      setEditedClassData({ ...editedClassData, dailyLife: newDailyLife });
+    }
+  };
 
-  // const handleFunActivitiesChange = (
-  //   index: number,
-  //   field: string,
-  //   value: string
-  // ) => {
-  //   if (editedClassData) {
-  //     const newFunActivities = [...editedClassData.funActivities];
-  //     newFunActivities[index] = { ...newFunActivities[index], [field]: value };
-  //     setEditedClassData({
-  //       ...editedClassData,
-  //       funActivities: newFunActivities,
-  //     });
-  //   }
-  // };
+  const handleFunActivitiesChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    if (editedClassData) {
+      const newFunActivities = [...editedClassData.funActivities];
+      // Auto-capitalize first letter for lucideIcon
+      if (field === "lucideIcon") {
+        value = value.charAt(0).toUpperCase() + value.slice(1);
+      }
+      newFunActivities[index] = { ...newFunActivities[index], [field]: value };
+      setEditedClassData({
+        ...editedClassData,
+        funActivities: newFunActivities,
+      });
+    }
+  };
 
   const handleGalleryImageChange = (url: string) => {
     if (editedClassData) {
@@ -268,44 +287,7 @@ export default function DynamicClassPage() {
             </div>
           </section>
 
-          {/* Daily Life Section */}
-          {/* Below is with dynamisism */}
-          {/* <section className="py-20 bg-white">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                  A Day with the{" "}
-                  <span className="text-orange-500">{classData.classname}</span>
-                </h2>
-              </div>
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="relative">
-                  <Image
-                    src={classData.imageUrl || "/public/placeholder.svg"}
-                    alt={classData.classname}
-                    width={600}
-                    height={400}
-                    className="w-full h-auto rounded-2xl shadow-lg"
-                  />
-                </div>
-                <div className="space-y-6">
-                  {(classData.dailyLife || []).map((item, index) => (
-                    <div key={index} className="flex items-start space-x-4">
-                      <div className="bg-blue-100 p-3 rounded-full">
-                        <Hand className="w-6 h-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">
-                          {item.title}
-                        </h3>
-                        <p className="text-gray-600">{item.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section> */}
+          
 
           <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-6">
@@ -327,88 +309,28 @@ export default function DynamicClassPage() {
                   />
                 </div>
                 <div className="space-y-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <Smile className="w-6 h-6 text-blue-600" />
+                  {classData.dailyLife.map((item, index) => (
+                    <div key={index} className="flex items-start space-x-4">
+                      <div className="bg-blue-100 p-3 rounded-full">
+                        <DynamicIcon
+                          name={item.lucideIcon || "Smile"}
+                          className="w-6 h-6 text-blue-600"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-600">{item.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        Growing Independence
-                      </h3>
-                      <p className="text-gray-600">
-                        We are already potty trained and can do almost
-                        everything on our own.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <Mic className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        Joyful Expressions
-                      </h3>
-                      <p className="text-gray-600">
-                        We love to laugh and sing and dance.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-purple-100 p-3 rounded-full">
-                      <MessageCircle className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">
-                        Chatterboxes
-                      </h3>
-                      <p className="text-gray-600">
-                        We can chat and reason and make you laugh.
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
           </section>
 
           {/* Activities Section */}
-          {/* Below is with it being dynamic */}
-          {/* <section className="py-20 bg-gradient-to-b from-sky-50 to-white">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                  Our <span className="text-orange-500">Fun Activities</span>
-                </h2>
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {(classData.funActivities || []).map((activity, index) => (
-                  <div
-                    key={index}
-                    className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4"
-                  >
-                    <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                      {index % 3 === 0 && (
-                        <Baby className="w-8 h-8 text-white" />
-                      )}
-                      {index % 3 === 1 && (
-                        <Lightbulb className="w-8 h-8 text-white" />
-                      )}
-                      {index % 3 === 2 && (
-                        <Handshake className="w-8 h-8 text-white" />
-                      )}
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-800">
-                      {activity.title}
-                    </h3>
-                    <p className="text-gray-600">{activity.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section> */}
           <section className="py-20 bg-gradient-to-b from-sky-50 to-white">
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-16">
@@ -422,41 +344,23 @@ export default function DynamicClassPage() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4">
-                  <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                    <Paintbrush className="w-8 h-8 text-white" />
+                {classData.funActivities.map((activity, index) => (
+                  <div
+                    key={index}
+                    className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4"
+                  >
+                    <div className="bg-blue-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                      <DynamicIcon
+                        name={activity.lucideIcon || "Star"}
+                        className="w-8 h-8 text-white"
+                      />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800">
+                      {activity.title}
+                    </h3>
+                    <p className="text-gray-600">{activity.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800">
-                    Creative Minds
-                  </h3>
-                  <p className="text-gray-600">
-                    We can scribble and paint and cut and mold.
-                  </p>
-                </div>
-
-                <div className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4">
-                  <div className="bg-green-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                    <Cpu className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800">
-                    Exploring & Building
-                  </h3>
-                  <p className="text-gray-600">
-                    We can build and climb and explore and lots more.
-                  </p>
-                </div>
-
-                <div className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden p-8 text-center space-y-4">
-                  <div className="bg-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                    <Puzzle className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800">
-                    Problem Solvers
-                  </h3>
-                  <p className="text-gray-600">
-                    We love to solve puzzles and take on new challenges.
-                  </p>
-                </div>
+                ))}
               </div>
             </div>
           </section>
@@ -500,6 +404,7 @@ export default function DynamicClassPage() {
             onClose={closeGallery}
           />
         </main>
+
       </SidebarInset>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[800px]">
@@ -537,71 +442,171 @@ export default function DynamicClassPage() {
                 />
               </div>
 
-              {/* Daily life section */}
-              {/* <div>
-                <Label>Daily Life</Label>
+              <div className="space-y-4">
+                <div className="flex flex-row justify-between items-center">
+                  <Label className="text-lg font-semibold">Daily Life</Label>
+                  <a
+                    href="https://lucide.dev/icons"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-500 hover:underline"
+                  >
+                    Browse Icons
+                  </a>
+                </div>
                 {editedClassData.dailyLife &&
                   editedClassData.dailyLife.map((item, index) => (
                     <div
                       key={index}
-                      className="space-y-2 border p-2 rounded-md"
+                      className="space-y-3 border p-4 rounded-md bg-gray-50"
                     >
-                      <Input
-                        value={item.title}
-                        onChange={(e) =>
-                          handleDailyLifeChange(index, "title", e.target.value)
-                        }
-                        placeholder="Title"
-                      />
-                      <Textarea
-                        value={item.description}
-                        onChange={(e) =>
-                          handleDailyLifeChange(
-                            index,
-                            "description",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Description"
-                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Title</Label>
+                          <Input
+                            value={item.title}
+                            onChange={(e) =>
+                              handleDailyLifeChange(
+                                index,
+                                "title",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Title"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label>Icon</Label>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-[200px]">
+                                    Icon names are automatically capitalized.
+                                    For multi-word icons like &quot;graduation-cap&quot;,
+                                    please use camelCase (e.g. GraduationCap).
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <Input
+                            value={item.lucideIcon}
+                            onChange={(e) =>
+                              handleDailyLifeChange(
+                                index,
+                                "lucideIcon",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Icon name (e.g. Smile)"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
+                          value={item.description}
+                          onChange={(e) =>
+                            handleDailyLifeChange(
+                              index,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Description"
+                        />
+                      </div>
                     </div>
                   ))}
-              </div> */}
+              </div>
 
-              {/* Fun actibities section */}
-              {/* <div>
-                <Label>Fun Activities</Label>
+              <div className="space-y-4">
+                <div className="flex flex-row justify-between items-center">
+                  <Label className="text-lg font-semibold">
+                    Fun Activities
+                  </Label>
+                  <a
+                    href="https://lucide.dev/icons"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-500 hover:underline"
+                  >
+                    Browse Icons
+                  </a>
+                </div>
                 {editedClassData.funActivities &&
                   editedClassData.funActivities.map((item, index) => (
                     <div
                       key={index}
-                      className="space-y-2 border p-2 rounded-md"
+                      className="space-y-3 border p-4 rounded-md bg-gray-50"
                     >
-                      <Input
-                        value={item.title}
-                        onChange={(e) =>
-                          handleFunActivitiesChange(
-                            index,
-                            "title",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Title"
-                      />
-                      <Textarea
-                        value={item.description}
-                        onChange={(e) =>
-                          handleFunActivitiesChange(
-                            index,
-                            "description",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Description"
-                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Title</Label>
+                          <Input
+                            value={item.title}
+                            onChange={(e) =>
+                              handleFunActivitiesChange(
+                                index,
+                                "title",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Title"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label>Icon</Label>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-4 w-4 text-gray-500 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-[200px]">
+                                    Icon names are automatically capitalized.
+                                    For multi-word icons like &quot;graduation-cap&quot;,
+                                    please use camelCase (e.g. GraduationCap).
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <Input
+                            value={item.lucideIcon}
+                            onChange={(e) =>
+                              handleFunActivitiesChange(
+                                index,
+                                "lucideIcon",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Icon name (e.g. Star)"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
+                          value={item.description}
+                          onChange={(e) =>
+                            handleFunActivitiesChange(
+                              index,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Description"
+                        />
+                      </div>
                     </div>
                   ))}
-              </div> */}
+              </div>
               <div>
                 <Label>Gallery Images</Label>
                 <p
